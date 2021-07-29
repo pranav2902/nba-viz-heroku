@@ -5,6 +5,7 @@ import plotly.express as px
 #DATA_URL = https://www.basketball-reference.com/leagues/NBA_2006_per_game.html
 
 st.title('Basic NBA Visualizations')
+@st.cache
 def load_data(yr):
     playerpergame = pd.read_html("https://www.basketball-reference.com/leagues/NBA_{}_per_game.html".format(str(yr)),header=0)
     playertotals = pd.read_html("https://www.basketball-reference.com/leagues/NBA_{}_totals.html".format(str(yr)),header=0)

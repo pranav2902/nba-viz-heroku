@@ -31,7 +31,6 @@ year_options = list(range(1951,2022))
 title = st.sidebar.title("Make a selection")
 yr = st.sidebar.select_slider("Choose year",year_options,2021)
 playerpergame,playertotals = load_data(yr)
-st.dataframe(playerpergame)
 player_options = playerpergame.Player.unique().tolist() 
 pos_options = playerpergame.Pos.unique().tolist()
 pl = st.sidebar.multiselect("Choose Players",player_options,player_options[0])
@@ -39,11 +38,11 @@ all_players = st.sidebar.checkbox("Select all players")
 #https://discuss.streamlit.io/t/select-all-on-a-streamlit-multiselect/9799/2
 if(all_players):
     pl = player_options
-
 posits = playerpergame[playerpergame.Player.isin(pl)]["Pos"].unique().tolist()
 pos = st.sidebar.multiselect("Choose Positions",pos_options,posits)
 if(len(pl)):
-    fig = px.scatter(playerpergame[playerpergame["Player"].isin(pl)],x = "PTS",y = "eFG%",hover_name= "Player",range_x=[0,40],range_y=[0,1.2],color="Tm")
+    st.dataframe(playerpergame[playerpergame.Player.isin(pl)])
+    fig = px.scatter(playerpergame[playerpergame["Player"].isin(pl)],x = "PTS",y = "eFG%",hover_name= "Player",range_x=[0,40],range_y=[0,1.2],color = "Tm")
     fig.update_layout(title = {'text' : "PPG vs eFG%", 'xanchor' : 'center', 'x' : 0.5}, yaxis=dict(
         autorange = True,
         type = "linear"
@@ -54,7 +53,8 @@ if(len(pl)):
     st.plotly_chart(fig)
 
 elif(len(pos)):
-    fig = px.scatter(playerpergame[playerpergame["Pos"].isin(pos)],x = "PTS",y = "eFG%",hover_name= "Player",range_x=[0,40],range_y=[0,1.2],color="Tm")
+    st.dataframe(playerpergame[playerpergame.Pos.isin(pos)])
+    fig = px.scatter(playerpergame[playerpergame["Pos"].isin(pos)],x = "PTS",y = "eFG%",hover_name= "Player",range_x=[0,40],range_y=[0,1.2],color = "Tm")
     fig.update_layout(title = {'text' : "PPG vs eFG%", 'xanchor' : 'center', 'x' : 0.5}, yaxis=dict(
         autorange = True,
         type = "linear"

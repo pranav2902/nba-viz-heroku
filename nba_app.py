@@ -35,6 +35,11 @@ st.dataframe(playerpergame)
 player_options = playerpergame.Player.unique().tolist() 
 pos_options = playerpergame.Pos.unique().tolist()
 pl = st.sidebar.multiselect("Choose Players",player_options,player_options[0])
+all_players = st.sidebar.checkbox("Select all players")
+#https://discuss.streamlit.io/t/select-all-on-a-streamlit-multiselect/9799/2
+if(all_players):
+    pl = player_options
+
 posits = playerpergame[playerpergame.Player.isin(pl)]["Pos"].unique().tolist()
 pos = st.sidebar.multiselect("Choose Positions",pos_options,posits)
 if(len(pl)):

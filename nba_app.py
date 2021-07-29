@@ -1,8 +1,5 @@
 import streamlit as st
 import pandas as pd
-import numpy as np
-import matplotlib.pyplot as plt
-import seaborn as sns
 import plotly.express as px
 
 #DATA_URL = https://www.basketball-reference.com/leagues/NBA_2006_per_game.html

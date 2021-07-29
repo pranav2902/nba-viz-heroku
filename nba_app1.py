@@ -89,5 +89,4 @@ elif(len(pos)):
     ))
     st.plotly_chart(fig)
 
-
 #px.scatter()

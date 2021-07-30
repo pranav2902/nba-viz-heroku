@@ -56,7 +56,7 @@ def betterFiles(playerpergame,playertotals,playeradvanced,playershooting):
     #print(len(playeradvanced),len(playerpergame),len(playershooting),len(playertotals))
     return (playerpergame,playertotals,playeradvanced,playershooting)
 ## No shooting data from 1951-1997
-year_options = list(range(1951,2022))
+year_options = list(range(1997,2022))
 title = st.sidebar.title("Make a selection")
 yr = st.sidebar.select_slider("Choose year",year_options,2021)
 playerpergame,playertotals,playeradvanced, playershooting = load_data(yr)

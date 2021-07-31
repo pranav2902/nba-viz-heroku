@@ -40,6 +40,8 @@ def load_data(yr):
     playershooting.columns = ['Rk', 'Player', 'Pos', 'Age', 'Tm', 'G', 'MP', 'FG%', 'Dist.', '% of FG 2P ft',
        '% of FG 0-3 ft', '% of FG 3-10 ft', '% of FG 10-16 ft', '% of FG 16-3P', '% of FG 3P', 'FG% 2P', 'FG%  0-3 ft', 'FG% 3-10 ft', 'FG% 10-16 ft',
        'FG% 16-3P', 'FG% 3P', 'Asst 2P', 'Asst 3P', '%FGA Dunks', '# Dunks', '%3PA Corner', '3P% Corner', 'Att. Heaves', '# Heaves']
+    playershooting.columns = playershooting.columns.str.replace(' ', '_')     
+    print(playershooting.head(),playeradvanced.head())
     (playerpergame, playertotals, playeradvanced, playershooting) = betterFiles(playerpergame,playertotals,playeradvanced,playershooting)
     return playerpergame, playertotals,playeradvanced,playershooting
 #@st.cache
@@ -62,71 +64,48 @@ yr = st.sidebar.select_slider("Choose year",year_options,2021)
 playerpergame,playertotals,playeradvanced, playershooting = load_data(yr)
 player_options = playerpergame.Player.unique().tolist() 
 pos_options = playerpergame.Pos.unique().tolist()
-pl = st.sidebar.multiselect("Choose Players",player_options,player_options[0])
+pl = st.sidebar.multiselect("Choose Players",player_options)
 all_players = st.sidebar.checkbox("Select all players")
 posits = playerpergame[playerpergame.Player.isin(pl)]["Pos"].unique().tolist()
-if(len(posits)):
-    pos = st.sidebar.multiselect("Choose Positions",pos_options,posits)
-else:
-    pos = st.sidebar.multiselect("Choose Positions",pos_options)
+pos = st.sidebar.multiselect("Choose Positions",pos_options)
+if(len(pl) and not len(pos)):
+    pos = posits
+elif(not len(pl) and len(pos)):
+    pl = playerpergame[playerpergame.Pos.isin(pos)]["Player"]
+elif(len(pl) and len(pos)):
+    pos = posits
 #https://discuss.streamlit.io/t/select-all-on-a-streamlit-multiselect/9799/2
 if(all_players):
     pl = player_options
     pos = pos_options
-
+#st.write(pl,pos)
 if(len(pl)):
-    st.dataframe(playeradvanced[playeradvanced.Player.isin(pl)])
-    if(len(playeradvanced[playeradvanced.Player.isin(pl)])):
-        fig = px.scatter(playerpergame[playerpergame["Player"].isin(pl)],x = "PTS",y = "eFG%",hover_name= "Player",range_x=[0,40],range_y=[0,1.2],color = "Tm")
-        fig.update_layout(title = {'text' : "PPG vs eFG%", 'xanchor' : 'center', 'x' : 0.5}, yaxis=dict(
-            autorange = True,
-            type = "linear"
-        ),xaxis = dict(
-            autorange = True,
-            type = "linear"
-        ))
-        st.plotly_chart(fig)
+    st.dataframe(playerpergame[playerpergame.Player.isin(pl)])
+    #if(len(playeradvanced[playeradvanced.Player.isin(pl)])):
+    fig = px.scatter(playerpergame[playerpergame["Player"].isin(pl)],x = "PTS",y = "eFG%",hover_name= "Player",color = "Tm")
+    fig.update_layout(title = {'text' : "PPG vs eFG%", 'xanchor' : 'center', 'x' : 0.5}, yaxis=dict(
+        autorange = True,
+        type = "linear"
+    ),xaxis = dict(
+        autorange = True,
+        type = "linear"
+    ))
+    st.write(fig)
+## Add FG split pie chart if no of players == 1    
     ## For Guards
-    if("PG" or "SG" or "SF" in pos):
-        if(len(playeradvanced[playeradvanced.Player.isin(pl)])):
-            fig1 = px.scatter(playershooting[playershooting["Player"].isin(pl)], x = "FG%  0-3 ft",y = "FG% 3P", hover_name="Player",color = "Tm")
-            fig1.update_layout(title = {'text': "Finishing vs 3P%", 'xanchor' : 'center', 'x': 0.5},xaxis = dict(autorange = True, type = "linear"),yaxis = dict(autorange = True, type = "linear"))
-            st.write(fig1)
+    if(("PG" in pos) or ("SG" in pos) or ("SF" in pos)):
+        #st.write("Found PG or SG or SF")
+        #if(len(playeradvanced[playeradvanced.Player.isin(pl)])):
+        fig1 = px.scatter(playershooting[playershooting["Player"].isin(pl)], x = "FG%__0-3_ft",y = "FG%_3P", hover_name="Player",color = "Tm")
+        fig1.update_layout(title = {'text': "Finishing vs 3P%", 'xanchor' : 'center', 'x': 0.5},xaxis = dict(autorange = True, type = "linear"),yaxis = dict(autorange = True, type = "linear"))
+        st.write(fig1)
 
     ## For front court
-    if("PF" or "C" or "SF" in pos):
-        if(len(playeradvanced[playeradvanced.Player.isin(pl)])):
-            fig2 = px.scatter(playerpergame[playerpergame["Player"].isin(pl)], x = "TRB",y = "BLK", hover_name="Player",color = "Tm")
-            fig2.update_layout(title = {'text': "Rebounding vs Blocking", 'xanchor' : 'center', 'x': 0.5},xaxis = dict(autorange = True, type = "linear"),yaxis = dict(autorange = True, type = "linear"))
-            st.write(fig2)
+    if(("C" in pos) or ("SF" in pos) or ("PF" in pos)):
+        #st.write("Found C or Sf or PF")
+        #if(len(playeradvanced[playeradvanced.Player.isin(pl)])):
+        fig2 = px.scatter(playerpergame[playerpergame["Player"].isin(pl)], x = "TRB",y = "BLK", hover_name="Player",color = "Tm")
+        fig2.update_layout(title = {'text': "Rebounding vs Blocking", 'xanchor' : 'center', 'x': 0.5},xaxis = dict(autorange = True, type = "linear"),yaxis = dict(autorange = True, type = "linear"))
+        st.write(fig2)
 
-
-else:
-    st.dataframe(playeradvanced[playeradvanced.Pos.isin(pos)])
-    if(len(playeradvanced[playeradvanced.Pos.isin(pos)])):
-        fig = px.scatter(playerpergame[playerpergame["Pos"].isin(pos)],x = "PTS",y = "eFG%",hover_name= "Player",range_x=[0,40],range_y=[0,1.2],color = "Tm")
-        fig.update_layout(title = {'text' : "PPG vs eFG%", 'xanchor' : 'center', 'x' : 0.5}, yaxis=dict(
-            autorange = True,
-            type = "linear"
-        ),xaxis = dict(
-            autorange = True,
-            type = "linear"
-        ))
-        st.plotly_chart(fig)
-
-#px.scatter()
-## For Guards
-    if("PG" or "SG" or "SF" in pos):
-        if(len(playeradvanced[playeradvanced.Pos.isin(pos)])):
-            fig1 = px.scatter(playershooting[playershooting["Pos"].isin(pos)], x = "FG%  0-3 ft",y = "FG% 3P", hover_name="Player",color = "Tm")
-            fig1.update_layout(title = {'text': "Finishing vs 3P%", 'xanchor' : 'center', 'x': 0.5},xaxis = dict(autorange = True, type = "linear"),yaxis = dict(autorange = True, type = "linear"))
-            st.write(fig1)
-
-    ## For front court
-    if("PF" or "C" or "SF" in pos):
-        if(len(playeradvanced[playeradvanced.Pos.isin(pos)])):
-            fig2 = px.scatter(playerpergame[playerpergame["Pos"].isin(pos)], x = "TRB",y = "BLK", hover_name="Player",color = "Tm")
-            fig2.update_layout(title = {'text': "Rebounding vs Blocking", 'xanchor' : 'center', 'x': 0.5},xaxis = dict(autorange = True, type = "linear"),yaxis = dict(autorange = True, type = "linear"))
-            st.write(fig2)
-
-
+ 
